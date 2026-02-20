@@ -19,6 +19,12 @@ on:
       GCP_SERVICE_ACCOUNT:
         required: true
 
+  # Added triggers for automatic deployment on push or manual dispatch
+  push:
+    paths:
+      - 'functions/**'  # only triggers when function code changes
+  workflow_dispatch:    # allows manual trigger
+
 permissions:
   contents: read
   id-token: write
