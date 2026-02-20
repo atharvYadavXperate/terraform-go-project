@@ -20,6 +20,10 @@ on:
       GCP_SERVICE_ACCOUNT:
         required: true
 
+permissions:
+  contents: read
+  id-token: write
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest
