@@ -1,37 +1,53 @@
-name: Deploy go function
+name: Deploy Go Function
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      function_path:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+    secrets:
+      GCP_PROJECT:
+        required: true
+      GCP_PROJECT_NUMBER:
+        required: true
+      GCP_REGION:
+        required: true
+      GCP_SERVICE_ACCOUNT:
+        required: true
 
 permissions:
-    contents: read
-    id-token: write
+  contents: read
+  id-token: write
+
 jobs:
-  changes:
+  deploy:
     runs-on: ubuntu-latest
-    outputs:
-      hello-function: ${{ steps.filter.outputs.hello-function }}
-    
+
     steps:
       - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            hello-function:
-              - 'hello-function/**'
 
-  deploy-hello-function:
-    needs: changes
-    if: ${{ needs.changes.outputs.hello-function == 'true' }}
-    uses: ./.github/workflows/deploy-go-function.yaml
-    with: 
-      function_path: hello-function
-      environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
-    secrets:
-      GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
-      GCP_PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER }}
-      GCP_REGION: ${{ secrets.GCP_REGION }}
-      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: "projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool-v2/providers/github-provider"
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Zip function
+        run: |
+          cd ${{ inputs.function_path }}/function
+          zip -r ../function.zip .
+
+      - name: Terraform Init
+        working-directory: ${{ inputs.function_path }}
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: ${{ inputs.function_path }}
+        run: terraform apply -auto-approve
+        env:
+          TF_VAR_project_id: ${{ secrets.GCP_PROJECT }}
+          TF_VAR_region: ${{ secrets.GCP_REGION }}

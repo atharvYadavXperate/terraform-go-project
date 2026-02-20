@@ -1,4 +1,4 @@
-name: Deploy go function
+name: Deploy Go Function
 
 on:
   workflow_call:
@@ -9,7 +9,6 @@ on:
       environment:
         required: true
         type: string
-
     secrets:
       GCP_PROJECT:
         required: true
