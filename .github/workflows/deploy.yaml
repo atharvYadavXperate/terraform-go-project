@@ -1,29 +1,10 @@
 name: Deploy Go Function
 
 on:
-  workflow_call:
-    inputs:
-      function_path:
-        required: true
-        type: string
-      environment:
-        required: true
-        type: string
-    secrets:
-      GCP_PROJECT:
-        required: true
-      GCP_PROJECT_NUMBER:
-        required: true
-      GCP_REGION:
-        required: true
-      GCP_SERVICE_ACCOUNT:
-        required: true
-
-  # Added triggers for automatic deployment on push or manual dispatch
   push:
     paths:
-      - 'functions/**'  # only triggers when function code changes
-  workflow_dispatch:    # allows manual trigger
+      - 'functions/**'       # triggers when any code in functions folder changes
+  workflow_dispatch:        # allows manual trigger
 
 permissions:
   contents: read
@@ -33,28 +14,34 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      TF_VAR_project_id: ${{ secrets.GCP_PROJECT }}
+      TF_VAR_region: ${{ secrets.GCP_REGION }}
+
     steps:
+      # 1. Checkout the repo
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2. Authenticate to Google Cloud
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: "projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool-v2/providers/github-provider"
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      - name: Zip function
+      # 3. Zip the Go function
+      - name: Zip Go function
         run: |
-          cd ${{ inputs.function_path }}/function
-          zip -r ../function.zip .
+          cd functions/my-function/function  # <-- adjust to your function folder
+          zip -r ../../function.zip .
 
+      # 4. Initialize Terraform
       - name: Terraform Init
-        working-directory: ${{ inputs.function_path }}
+        working-directory: functions/my-function   # <-- adjust to your function folder
         run: terraform init
 
+      # 5. Apply Terraform to deploy function
       - name: Terraform Apply
-        working-directory: ${{ inputs.function_path }}
+        working-directory: functions/my-function   # <-- adjust to your function folder
         run: terraform apply -auto-approve
-        env:
-          TF_VAR_project_id: ${{ secrets.GCP_PROJECT }}
-          TF_VAR_region: ${{ secrets.GCP_REGION }}
