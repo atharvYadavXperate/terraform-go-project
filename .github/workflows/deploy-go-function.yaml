@@ -9,9 +9,6 @@ on:
       environment:
         required: true
         type: string
-      secrets:
-        required: true
-        type: string
 
     secrets:
       GCP_PROJECT:
@@ -30,7 +27,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Authenticate to GCP using Workload Identity Federation (OIDC)
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
