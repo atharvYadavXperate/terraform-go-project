@@ -13,7 +13,7 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
-      - uses: dorny/path-filter@v2
+      - uses: dorny/paths-filter@v2
         id: filter
         with:
           filter: |
