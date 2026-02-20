@@ -1,0 +1,34 @@
+name: Deploy go function
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      hello-function: ${{ steps.filter.outputs.hello-function }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/path-filter@v3
+        id: filter
+        with:
+          filter: |
+            hello-function:
+              - 'hello-function/**'
+
+  deploy-hello-function:
+    needs: changes
+    if: ${{ needs.changes.outputs.hello-function == 'true' }}
+    uses: ./.github/workflows/deploy-go-function.yaml
+    with: 
+      function_path: hello-function
+      environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    secrets:
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+      GCP_PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}

@@ -1,0 +1,54 @@
+name: Deploy go function
+
+on:
+  workflow_call:
+    inputs:
+      function_path:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      secrets:
+        required: true
+        type: string
+
+    secrets:
+      GCP_PROJECT:
+        required: true
+      GCP_PROJECT_NUMBER:
+        required: true
+      GCP_REGION:
+        required: true
+      GCP_SERVICE_ACCOUNT:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Authenticate to GCP using Workload Identity Federation (OIDC)
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: "projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Zip function
+        run: |
+          cd ${{ inputs.function_path }}/function
+          zip -r ../function.zip .
+
+      - name: Terraform Init
+        working-directory: ${{ inputs.function_path }}
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: ${{ inputs.function_path }}
+        run: terraform apply -auto-approve
+        env:
+          TF_VAR_project_id: ${{ secrets.GCP_PROJECT }}
+          TF_VAR_region: ${{ secrets.GCP_REGION }}
