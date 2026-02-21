@@ -38,8 +38,8 @@ jobs:
       # 4️⃣ Zip the Go function
       - name: Zip Go function
         run: |
-          cd hello-function/function
-          zip -r ../function.zip .
+           cd hello-function/function
+           zip -r ../../hello-function/function.zip .
 
       # 5️⃣ Terraform Init
       - name: Terraform Init
