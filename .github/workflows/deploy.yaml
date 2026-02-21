@@ -3,7 +3,7 @@ name: Deploy Go Function
 on:
   push:
     paths:
-      - 'functions/**'
+      - 'hello-function/**'
   workflow_dispatch:
 
 permissions:
@@ -17,6 +17,7 @@ jobs:
     env:
       TF_VAR_project_id: ${{ secrets.GCP_PROJECT }}
       TF_VAR_region: ${{ secrets.GCP_REGION }}
+      TF_VAR_function_name: hello-function
 
     steps:
       # 1️⃣ Checkout repo
@@ -37,15 +38,15 @@ jobs:
       # 4️⃣ Zip the Go function
       - name: Zip Go function
         run: |
-          cd functions/my-function/function
-          zip -r ../../function.zip .
+          cd hello-function/function
+          zip -r ../function.zip .
 
       # 5️⃣ Terraform Init
       - name: Terraform Init
-        working-directory: functions/my-function
+        working-directory: hello-function
         run: terraform init
 
       # 6️⃣ Terraform Apply
       - name: Terraform Apply
-        working-directory: functions/my-function
+        working-directory: hello-function
         run: terraform apply -auto-approve
