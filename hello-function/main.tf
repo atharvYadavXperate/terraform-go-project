@@ -70,7 +70,7 @@ resource "google_cloudfunctions2_function" "hello_function" {
 }
 
 resource "google_cloud_run_service_iam_member" "invoker" {
-  location = google_cloudfunctions2_function.hello_function.location
+  location = var.region
   service  = google_cloudfunctions2_function.hello_function.name
   role     = "roles/run.invoker"
   member   = "allUsers"
