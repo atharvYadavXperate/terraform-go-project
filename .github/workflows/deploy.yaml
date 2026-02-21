@@ -35,6 +35,11 @@ jobs:
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+            terraform_version: 1.6.6
+
       # 4️⃣ Zip the Go function
       - name: Zip Go function
         run: |
