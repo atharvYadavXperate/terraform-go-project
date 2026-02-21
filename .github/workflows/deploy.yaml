@@ -17,6 +17,7 @@ jobs:
     env:
       TF_VAR_project_id: ${{ secrets.GCP_PROJECT }}
       TF_VAR_region: ${{ secrets.GCP_REGION }}
+      TF_VAR_service_account_email: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       TF_VAR_function_name: hello-function
 
     steps:
@@ -51,7 +52,11 @@ jobs:
         working-directory: hello-function
         run: terraform init
 
-      # 6️⃣ Terraform Apply
+      - name: Terraform Show Variables
+        working-directory: hello-function
+        run: terraform plan -var="project_id=${{ secrets.GCP_PROJECT }}" -var="region=${{ secrets.GCP_REGION }}" -var="service_account_email=${{ secrets.GCP_SERVICE_ACCOUNT }}" -var="function_name=hello-function"
+      
+        # 6️⃣ Terraform Apply
       - name: Terraform Apply
         working-directory: hello-function
         run: terraform apply -auto-approve

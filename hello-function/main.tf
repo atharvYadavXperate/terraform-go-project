@@ -10,6 +10,9 @@ variable "function_name" {
   type = string
 }
 
+variable "service_account_email"{
+  type string
+}
 terraform {
   required_providers {
     google = {
@@ -56,7 +59,7 @@ resource "google_cloudfunctions2_function" "hello_function" {
   build_config {
     runtime     = "go122"
     entry_point = "HelloWorld"
-
+    service_account_email = var.service_account_email
     source {
       storage_source {
         bucket = google_storage_bucket.function_bucket.name
