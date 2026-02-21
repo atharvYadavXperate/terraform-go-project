@@ -43,6 +43,12 @@ resource "google_storage_bucket" "function_bucket" {
   }
 }
 
+resource "google_storage_bucket_object" "function_archive" {
+  name   = "function.zip"
+  bucket = google_storage_bucket.function_bucket.name
+  source = "../function.zip"
+}
+
 resource "google_cloudfunctions2_function" "hello_function" {
   name     = var.function_name
   location = var.region
