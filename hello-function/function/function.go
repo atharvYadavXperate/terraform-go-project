@@ -6,5 +6,5 @@ import (
 )
 
 func HelloWorld(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Bucket error")
+	fmt.Fprintln(w, "Unique bucket")
 }

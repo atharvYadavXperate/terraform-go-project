@@ -31,17 +31,6 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
-
-resource "google_storage_bucket" "function_bucket" {
-  name          = "${var.project_id}-${var.function_name}-${random_id.suffix.hex}"
-  location      = var.region
-  force_destroy = true
-
-  versioning {
-    enabled = true
-  }
-}
-
 resource "google_storage_bucket" "function_bucket" {
   name          = "${var.project_id}-${var.function_name}-${random_id.suffix.hex}"
   location      = var.region
