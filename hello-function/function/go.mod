@@ -1,3 +1,3 @@
-module github.com/atharvYadavXperate/terraform-go-project/helloworld
+module github.com/atharvYadavXperate/terraform-go-project/hello-function/function
 
-go 1.25.5
+go 1.25
