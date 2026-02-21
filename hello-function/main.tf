@@ -11,7 +11,7 @@ variable "function_name" {
 }
 
 variable "service_account_email"{
-  type string
+  type  = string
 }
 terraform {
   required_providers {
