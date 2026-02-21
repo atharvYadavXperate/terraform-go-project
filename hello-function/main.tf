@@ -50,7 +50,7 @@ resource "google_storage_bucket_object" "function_archive" {
 }
 
 resource "google_cloudfunctions2_function" "hello_function" {
-  name     = var.function_name
+  name     = "${var.function_name}-${random_id.suffix.hex}"
   location = var.region
 
   build_config {
