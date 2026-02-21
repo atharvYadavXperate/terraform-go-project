@@ -3,12 +3,12 @@ name: Deploy Go Function
 on:
   push:
     paths:
-      - 'functions/**'       # triggers when any code in functions folder changes
-  workflow_dispatch:        # allows manual trigger
+      - 'functions/**'
+  workflow_dispatch:
 
 permissions:
   contents: read
-  id-token: write
+  id-token: write   # REQUIRED for OIDC
 
 jobs:
   deploy:
@@ -19,29 +19,33 @@ jobs:
       TF_VAR_region: ${{ secrets.GCP_REGION }}
 
     steps:
-      # 1. Checkout the repo
+      # 1️⃣ Checkout repo
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Authenticate to Google Cloud
+      # 2️⃣ Authenticate to Google Cloud (OIDC)
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: "projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool-v2/providers/github-provider"
+          workload_identity_provider: projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      # 3. Zip the Go function
+      # 3️⃣ Setup gcloud (needed for terraform google provider)
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      # 4️⃣ Zip the Go function
       - name: Zip Go function
         run: |
-          cd functions/my-function/function  # <-- adjust to your function folder
+          cd functions/my-function/function
           zip -r ../../function.zip .
 
-      # 4. Initialize Terraform
+      # 5️⃣ Terraform Init
       - name: Terraform Init
-        working-directory: functions/my-function   # <-- adjust to your function folder
+        working-directory: functions/my-function
         run: terraform init
 
-      # 5. Apply Terraform to deploy function
+      # 6️⃣ Terraform Apply
       - name: Terraform Apply
-        working-directory: functions/my-function   # <-- adjust to your function folder
+        working-directory: functions/my-function
         run: terraform apply -auto-approve
