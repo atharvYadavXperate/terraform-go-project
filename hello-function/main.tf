@@ -42,12 +42,17 @@ resource "google_storage_bucket" "function_bucket" {
   }
 }
 
-resource "google_storage_bucket_object" "function_archive" {
-  name   = "function.zip"
-  bucket = google_storage_bucket.function_bucket.name
-  source = "../function.zip"
-}
+resource "google_storage_bucket" "function_bucket" {
+  name          = "${var.project_id}-${var.function_name}-${random_id.suffix.hex}"
+  location      = var.region
+  force_destroy = true
 
+  uniform_bucket_level_access = true
+
+  versioning {
+    enabled = true
+  }
+}
 
 resource "google_cloudfunctions2_function" "hello_function" {
   name     = var.function_name

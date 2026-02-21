@@ -6,5 +6,5 @@ import (
 )
 
 func HelloWorld(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Storage Admin")
+	fmt.Fprintln(w, "Bucket error")
 }
