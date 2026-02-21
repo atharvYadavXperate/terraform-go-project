@@ -59,7 +59,6 @@ resource "google_cloudfunctions2_function" "hello_function" {
   build_config {
     runtime     = "go122"
     entry_point = "HelloWorld"
-    service_account_email = var.service_account_email
     source {
       storage_source {
         bucket = google_storage_bucket.function_bucket.name
@@ -73,6 +72,7 @@ resource "google_cloudfunctions2_function" "hello_function" {
     available_memory      = "256M"
     ingress_settings      = "ALLOW_ALL"
     timeout_seconds       = 60
+    service_account_email = var.service_account_email
   }
 }
 
